@@ -1323,6 +1323,9 @@ public class DynamoDBJobStore implements JobStore {
 						}
 					}
 				}
+				if( triggers.size()==maxCount ) {
+					break;
+				}
 			}
 		} catch (AmazonServiceException e) {
 			LOG.error(e.getMessage(), e);
