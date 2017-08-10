@@ -23,6 +23,8 @@ import java.util.TimeZone;
 
 import javax.xml.bind.DatatypeConverter;
 
+import com.amazonaws.services.dynamodbv2.model.*;
+import com.amazonaws.services.dynamodbv2.util.TableUtils;
 import org.quartz.Calendar;
 import org.quartz.CronTrigger;
 import org.quartz.Job;
@@ -64,31 +66,6 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
-import com.amazonaws.services.dynamodbv2.model.AttributeAction;
-import com.amazonaws.services.dynamodbv2.model.AttributeDefinition;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.AttributeValueUpdate;
-import com.amazonaws.services.dynamodbv2.model.BatchWriteItemResult;
-import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
-import com.amazonaws.services.dynamodbv2.model.Condition;
-import com.amazonaws.services.dynamodbv2.model.ConditionalCheckFailedException;
-import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
-import com.amazonaws.services.dynamodbv2.model.DeleteRequest;
-import com.amazonaws.services.dynamodbv2.model.ExpectedAttributeValue;
-import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
-import com.amazonaws.services.dynamodbv2.model.GetItemResult;
-import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
-import com.amazonaws.services.dynamodbv2.model.KeyType;
-import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
-import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
-import com.amazonaws.services.dynamodbv2.model.ReturnValue;
-import com.amazonaws.services.dynamodbv2.model.ScalarAttributeType;
-import com.amazonaws.services.dynamodbv2.model.ScanRequest;
-import com.amazonaws.services.dynamodbv2.model.ScanResult;
-import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
-import com.amazonaws.services.dynamodbv2.model.UpdateItemResult;
-import com.amazonaws.services.dynamodbv2.model.WriteRequest;
-import com.amazonaws.services.dynamodbv2.util.Tables;
 
 /**
  * {@link org.quartz.spi.JobStore} implementation for DynamoDB
@@ -188,6 +165,22 @@ public class DynamoDBJobStore implements JobStore {
 	private int poolSize = DEFAULT_POOLSIZE;
 	private long triggerEstimate = DEFAULT_TRIGGERESTIMATE;
 
+    @Override
+    // Support for Quartz 2.3.0
+    public void resetTriggerFromErrorState(TriggerKey triggerKey) throws JobPersistenceException {
+        throw new UnsupportedOperationException("Feature not supported!");
+    }
+
+    @Override
+    // Support for Quartz 2.3.0
+    public long getAcquireRetryDelay(int failureCount) {
+        throw new UnsupportedOperationException("Feature not supported!");
+    }
+
+    public void setClient(AmazonDynamoDB client) {
+        this.client = client;
+    }
+
 	@Override
 	public void initialize(ClassLoadHelper loadHelper,
 			SchedulerSignaler signaler) throws SchedulerConfigException {
@@ -195,18 +188,20 @@ public class DynamoDBJobStore implements JobStore {
 		this.loadHelper = loadHelper;
 		this.signaler = signaler;
 		synchronized (this.initLock) {
-			AWSCredentialsProviderChain auth = new AWSCredentialsProviderChain(
-					new EnvironmentVariableCredentialsProvider(),
-					new SystemPropertiesCredentialsProvider(),
-					new ProfileCredentialsProvider(),
-					new InstanceProfileCredentialsProvider());
-			this.client = new AmazonDynamoDBClient(auth);
-			if (this.useEndpoint) {
-				LOG.info("Using endpoint: " + this.endpoint);
-				this.client.setEndpoint(this.endpoint);
-			} else {
-				LOG.info("Using region: " + this.region.getName());
-				this.client.setRegion(this.region);
+			if( this.client==null ) {
+				AWSCredentialsProviderChain auth = new AWSCredentialsProviderChain(
+						new EnvironmentVariableCredentialsProvider(),
+						new SystemPropertiesCredentialsProvider(),
+						new ProfileCredentialsProvider(),
+						new InstanceProfileCredentialsProvider());
+				this.client = new AmazonDynamoDBClient(auth);
+				if (this.useEndpoint) {
+					LOG.info("Using endpoint: " + this.endpoint);
+					this.client.setEndpoint(this.endpoint);
+				} else {
+					LOG.info("Using region: " + this.region.getName());
+					this.client.setRegion(this.region);
+				}
 			}
 			init();
 		}
@@ -1663,11 +1658,13 @@ public class DynamoDBJobStore implements JobStore {
 	}
 
 	private void init() {
-		if (!Tables.doesTableExist(this.client, this.tableNameCalendars)) {
+		try {
+			this.client.describeTable(this.tableNameCalendars);
+		} catch (ResourceNotFoundException e) {
 			LOG.warn("Creating table: " + this.tableNameCalendars);
 			this.client
 					.createTable(Arrays.asList(new AttributeDefinition()
-							.withAttributeName(KEY_NAME).withAttributeType(
+									.withAttributeName(KEY_NAME).withAttributeType(
 									ScalarAttributeType.S)),
 							this.tableNameCalendars, Arrays
 									.asList(new KeySchemaElement()
@@ -1675,7 +1672,9 @@ public class DynamoDBJobStore implements JobStore {
 											.withKeyType(KeyType.HASH)),
 							new ProvisionedThroughput(2L, 2L));
 		}
-		if (!Tables.doesTableExist(this.client, this.tableNameJobs)) {
+		try {
+			this.client.describeTable(this.tableNameJobs);
+		} catch (ResourceNotFoundException e) {
 			LOG.warn("Creating table: " + this.tableNameJobs);
 			this.client.createTable(
 					Arrays.asList(new AttributeDefinition().withAttributeName(
@@ -1685,7 +1684,9 @@ public class DynamoDBJobStore implements JobStore {
 							KEY_KEY).withKeyType(KeyType.HASH)),
 					new ProvisionedThroughput(2L, 2L));
 		}
-		if (!Tables.doesTableExist(this.client, this.tableNameTriggers)) {
+		try {
+			this.client.describeTable(this.tableNameTriggers);
+		} catch (ResourceNotFoundException e) {
 			LOG.warn("Creating table: " + this.tableNameTriggers);
 			this.client.createTable(
 					Arrays.asList(new AttributeDefinition().withAttributeName(
@@ -1696,11 +1697,11 @@ public class DynamoDBJobStore implements JobStore {
 					new ProvisionedThroughput(2L, 2L));
 		}
 		try {
-			Tables.awaitTableToBecomeActive(this.client,
+			TableUtils.waitUntilActive(this.client,
 					this.tableNameCalendars, 60000, 1000);
-			Tables.awaitTableToBecomeActive(this.client, this.tableNameJobs,
+			TableUtils.waitUntilActive(this.client, this.tableNameJobs,
 					60000, 1000);
-			Tables.awaitTableToBecomeActive(this.client,
+			TableUtils.waitUntilActive(this.client,
 					this.tableNameTriggers, 60000, 1000);
 		} catch (InterruptedException e) {
 			LOG.error(e.getMessage(), e);
