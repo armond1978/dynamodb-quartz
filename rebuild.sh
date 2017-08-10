@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-mvn clean package install
+mvn clean package source:jar install

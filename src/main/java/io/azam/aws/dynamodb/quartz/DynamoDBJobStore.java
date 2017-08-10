@@ -2348,8 +2348,8 @@ public class DynamoDBJobStore implements JobStore {
 		Map<String, Object> map = new HashMap<String, Object>();
 		for (String k : item.keySet()) {
 			AttributeValue v = item.get(k);
-			if (v.isNULL()) {
-			} else if (v.isBOOL()) {
+			if (v.isNULL()!=null && v.isNULL()) {
+			} else if (v.isBOOL()!=null && v.isBOOL()) {
 				map.put(k, v.getBOOL());
 			} else {
 				map.put(k, v.getS());
