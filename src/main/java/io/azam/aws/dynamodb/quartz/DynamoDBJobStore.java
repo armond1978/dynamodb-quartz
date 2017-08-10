@@ -625,6 +625,11 @@ public class DynamoDBJobStore implements JobStore {
 		ScanRequest req = new ScanRequest();
 		req.withTableName(this.tableNameJobs);
 		req.withAttributesToGet(KEY_KEY);
+		req.addScanFilterEntry(
+				KEY_SCHEDULER_INSTANCE_NAME,
+				new Condition().withComparisonOperator(ComparisonOperator.EQ)
+						.withAttributeValueList(
+								new AttributeValue(instanceName)));
 		try {
 			boolean hasMore = true;
 			ScanResult res = null;
@@ -655,6 +660,11 @@ public class DynamoDBJobStore implements JobStore {
 		ScanRequest req = new ScanRequest();
 		req.withTableName(this.tableNameTriggers);
 		req.withAttributesToGet(KEY_KEY);
+		req.addScanFilterEntry(
+				KEY_SCHEDULER_INSTANCE_NAME,
+				new Condition().withComparisonOperator(ComparisonOperator.EQ)
+						.withAttributeValueList(
+								new AttributeValue(instanceName)));
 		try {
 			boolean hasMore = true;
 			ScanResult res = null;
@@ -685,6 +695,11 @@ public class DynamoDBJobStore implements JobStore {
 		ScanRequest req = new ScanRequest();
 		req.withTableName(this.tableNameCalendars);
 		req.withAttributesToGet(KEY_NAME);
+		req.addScanFilterEntry(
+				KEY_SCHEDULER_INSTANCE_NAME,
+				new Condition().withComparisonOperator(ComparisonOperator.EQ)
+						.withAttributeValueList(
+								new AttributeValue(instanceName)));
 		try {
 			boolean hasMore = true;
 			ScanResult res = null;
@@ -718,6 +733,11 @@ public class DynamoDBJobStore implements JobStore {
 		ScanRequest req = new ScanRequest();
 		req.withTableName(this.tableNameJobs);
 		req.withAttributesToGet(KEY_KEY, KEY_NAME, KEY_GROUP);
+		req.addScanFilterEntry(
+				KEY_SCHEDULER_INSTANCE_NAME,
+				new Condition().withComparisonOperator(ComparisonOperator.EQ)
+						.withAttributeValueList(
+								new AttributeValue(instanceName)));
 		switch (op) {
 		case ANYTHING:
 			break;
@@ -784,6 +804,11 @@ public class DynamoDBJobStore implements JobStore {
 		ScanRequest req = new ScanRequest();
 		req.withTableName(this.tableNameTriggers);
 		req.withAttributesToGet(KEY_KEY, KEY_NAME, KEY_GROUP);
+		req.addScanFilterEntry(
+				KEY_SCHEDULER_INSTANCE_NAME,
+				new Condition().withComparisonOperator(ComparisonOperator.EQ)
+						.withAttributeValueList(
+								new AttributeValue(instanceName)));
 		switch (op) {
 		case ANYTHING:
 			break;
@@ -847,6 +872,11 @@ public class DynamoDBJobStore implements JobStore {
 		ScanRequest req = new ScanRequest();
 		req.withTableName(this.tableNameJobs);
 		req.withAttributesToGet(KEY_KEY, KEY_GROUP);
+		req.addScanFilterEntry(
+				KEY_SCHEDULER_INSTANCE_NAME,
+				new Condition().withComparisonOperator(ComparisonOperator.EQ)
+						.withAttributeValueList(
+								new AttributeValue(instanceName)));
 		try {
 			boolean hasMore = true;
 			ScanResult res = null;
@@ -884,6 +914,11 @@ public class DynamoDBJobStore implements JobStore {
 		ScanRequest req = new ScanRequest();
 		req.withTableName(this.tableNameTriggers);
 		req.withAttributesToGet(KEY_KEY, KEY_GROUP);
+		req.addScanFilterEntry(
+				KEY_SCHEDULER_INSTANCE_NAME,
+				new Condition().withComparisonOperator(ComparisonOperator.EQ)
+						.withAttributeValueList(
+								new AttributeValue(instanceName)));
 		try {
 			boolean hasMore = true;
 			ScanResult res = null;
@@ -921,6 +956,11 @@ public class DynamoDBJobStore implements JobStore {
 		ScanRequest req = new ScanRequest();
 		req.withTableName(this.tableNameCalendars);
 		req.withAttributesToGet(KEY_NAME);
+		req.addScanFilterEntry(
+				KEY_SCHEDULER_INSTANCE_NAME,
+				new Condition().withComparisonOperator(ComparisonOperator.EQ)
+						.withAttributeValueList(
+								new AttributeValue(instanceName)));
 		try {
 			boolean hasMore = true;
 			ScanResult res = null;
@@ -963,6 +1003,11 @@ public class DynamoDBJobStore implements JobStore {
 				new Condition().withComparisonOperator(ComparisonOperator.EQ)
 						.withAttributeValueList(
 								new AttributeValue(formatKey(jobKey))));
+		req.addScanFilterEntry(
+				KEY_SCHEDULER_INSTANCE_NAME,
+				new Condition().withComparisonOperator(ComparisonOperator.EQ)
+						.withAttributeValueList(
+								new AttributeValue(instanceName)));
 		try {
 			boolean hasMore = true;
 			ScanResult res = null;
@@ -1182,6 +1227,11 @@ public class DynamoDBJobStore implements JobStore {
 				new Condition().withComparisonOperator(ComparisonOperator.EQ)
 						.withAttributeValueList(
 								new AttributeValue(TriggerState.PAUSED.name())));
+		req.addScanFilterEntry(
+				KEY_SCHEDULER_INSTANCE_NAME,
+				new Condition().withComparisonOperator(ComparisonOperator.EQ)
+						.withAttributeValueList(
+								new AttributeValue(instanceName)));
 		// TODO: should we only return groups where all triggers are paused?
 		try {
 			boolean hasMore = true;
@@ -1301,6 +1351,11 @@ public class DynamoDBJobStore implements JobStore {
 		req.addScanFilterEntry(KEY_LOCKED, new Condition()
 				.withComparisonOperator(ComparisonOperator.NE)
 				.withAttributeValueList(new AttributeValue().withBOOL(true)));
+		req.addScanFilterEntry(
+				KEY_SCHEDULER_INSTANCE_NAME,
+				new Condition().withComparisonOperator(ComparisonOperator.EQ)
+						.withAttributeValueList(
+								new AttributeValue(instanceName)));
 		List<OperableTrigger> triggers = new ArrayList<OperableTrigger>();
 		try {
 			boolean hasMore = true;
@@ -2111,6 +2166,11 @@ public class DynamoDBJobStore implements JobStore {
 				new Condition().withComparisonOperator(ComparisonOperator.EQ)
 						.withAttributeValueList(
 								new AttributeValue(formatKey(jobKey))));
+		req.addScanFilterEntry(
+				KEY_SCHEDULER_INSTANCE_NAME,
+				new Condition().withComparisonOperator(ComparisonOperator.EQ)
+						.withAttributeValueList(
+								new AttributeValue(instanceName)));
 		try {
 			boolean hasMore = true;
 			ScanResult res = null;
@@ -2145,6 +2205,11 @@ public class DynamoDBJobStore implements JobStore {
 		req.addScanFilterEntry(KEY_CALENDAR, new Condition()
 				.withComparisonOperator(ComparisonOperator.EQ)
 				.withAttributeValueList(new AttributeValue(name)));
+		req.addScanFilterEntry(
+				KEY_SCHEDULER_INSTANCE_NAME,
+				new Condition().withComparisonOperator(ComparisonOperator.EQ)
+						.withAttributeValueList(
+								new AttributeValue(instanceName)));
 		try {
 			boolean hasMore = true;
 			ScanResult res = null;
@@ -2239,6 +2304,8 @@ public class DynamoDBJobStore implements JobStore {
 		Map<String, AttributeValue> item = new HashMap<String, AttributeValue>();
 		attr(item, KEY_CLASS, c.getClass().getName());
 		attr(item, KEY_DESCRIPTION, c.getDescription());
+		attr(item, KEY_SCHEDULER_INSTANCE_ID, instanceId);
+		attr(item, KEY_SCHEDULER_INSTANCE_NAME, instanceName);
 		if (c.getBaseCalendar() != null) {
 			attr(item, KEY_BASE, serialize(c.getBaseCalendar()));
 		}
@@ -2252,6 +2319,11 @@ public class DynamoDBJobStore implements JobStore {
 		ScanRequest req = new ScanRequest();
 		req.withTableName(name);
 		req.withAttributesToGet(keys);
+		req.addScanFilterEntry(
+				KEY_SCHEDULER_INSTANCE_NAME,
+				new Condition().withComparisonOperator(ComparisonOperator.EQ)
+						.withAttributeValueList(
+								new AttributeValue(instanceName)));
 		try {
 			boolean hasMore = true;
 			ScanResult res = null;
@@ -2634,6 +2706,11 @@ public class DynamoDBJobStore implements JobStore {
 		Map<String, AttributeValue> last = null;
 		boolean hasMore = true;
 		ScanRequest req = new ScanRequest().withTableName(tbl);
+		req.addScanFilterEntry(
+				KEY_SCHEDULER_INSTANCE_NAME,
+				new Condition().withComparisonOperator(ComparisonOperator.EQ)
+						.withAttributeValueList(
+								new AttributeValue(instanceName)));
 		while (hasMore) {
 			hasMore = false;
 			if (last != null) {
