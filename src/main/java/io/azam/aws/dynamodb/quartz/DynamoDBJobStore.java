@@ -624,7 +624,8 @@ public class DynamoDBJobStore implements JobStore {
 		LOG.trace("getNumberOfJobs");
 		ScanRequest req = new ScanRequest();
 		req.withTableName(this.tableNameJobs);
-		req.withAttributesToGet(KEY_KEY);
+		//req.withAttributesToGet(KEY_KEY);
+		req.withSelect(Select.COUNT);
 		req.addScanFilterEntry(
 				KEY_SCHEDULER_INSTANCE_NAME,
 				new Condition().withComparisonOperator(ComparisonOperator.EQ)
@@ -659,7 +660,8 @@ public class DynamoDBJobStore implements JobStore {
 		LOG.trace("getNumberOfTriggers");
 		ScanRequest req = new ScanRequest();
 		req.withTableName(this.tableNameTriggers);
-		req.withAttributesToGet(KEY_KEY);
+		//req.withAttributesToGet(KEY_KEY);
+		req.withSelect(Select.COUNT);
 		req.addScanFilterEntry(
 				KEY_SCHEDULER_INSTANCE_NAME,
 				new Condition().withComparisonOperator(ComparisonOperator.EQ)
@@ -694,7 +696,8 @@ public class DynamoDBJobStore implements JobStore {
 		LOG.trace("getNumberOfCalendars");
 		ScanRequest req = new ScanRequest();
 		req.withTableName(this.tableNameCalendars);
-		req.withAttributesToGet(KEY_NAME);
+		//req.withAttributesToGet(KEY_NAME);
+		req.withSelect(Select.COUNT);
 		req.addScanFilterEntry(
 				KEY_SCHEDULER_INSTANCE_NAME,
 				new Condition().withComparisonOperator(ComparisonOperator.EQ)
