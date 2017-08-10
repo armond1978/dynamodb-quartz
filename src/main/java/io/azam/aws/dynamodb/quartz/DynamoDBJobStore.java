@@ -116,6 +116,9 @@ public class DynamoDBJobStore implements JobStore {
 	public static final String KEY_BASE = "base";
 	public static final String KEY_BYTECODE = "byteCode";
 
+	public static final String KEY_SCHEDULER_INSTANCE_ID = "schedulerId";
+	public static final String KEY_SCHEDULER_INSTANCE_NAME = "schedulerName";
+
 	// Trigger types
 	public static final String TRIGGERTYPE_CRON = "cron";
 	public static final String TRIGGERTYPE_SIMPLE = "simple";
@@ -2183,6 +2186,8 @@ public class DynamoDBJobStore implements JobStore {
 		attr(item, KEY_DURABLE, j.isDurable());
 		attr(item, KEY_CONCURRENT, !j.isConcurrentExectionDisallowed());
 		attr(item, KEY_PERSIST, j.isPersistJobDataAfterExecution());
+		attr(item, KEY_SCHEDULER_INSTANCE_ID, instanceId);
+		attr(item, KEY_SCHEDULER_INSTANCE_NAME, instanceName);
 		if (j.getJobDataMap() != null) {
 			j.getJobDataMap().clearDirtyFlag();
 			j.getJobDataMap().removeTransientData();
@@ -2208,6 +2213,8 @@ public class DynamoDBJobStore implements JobStore {
 		attr(item, KEY_END, t.getEndTime());
 		attr(item, KEY_FINAL, t.getFinalFireTime());
 		attr(item, KEY_DATA, t.getJobDataMap());
+		attr(item, KEY_SCHEDULER_INSTANCE_ID, instanceId);
+		attr(item, KEY_SCHEDULER_INSTANCE_NAME, instanceName);
 		// Trigger specific
 		if (t instanceof SimpleTrigger) {
 			attr(item, KEY_TYPE, TRIGGERTYPE_SIMPLE);
