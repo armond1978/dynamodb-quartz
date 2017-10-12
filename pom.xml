@@ -5,7 +5,7 @@
 	<groupId>io.azam</groupId>
 	<artifactId>dynamodb-quartz</artifactId>
 	<packaging>jar</packaging>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1-armond</version>
 	<name>dynamodb-quartz</name>
 	<description>Quartz JobStore implementation on DynamoDB</description>
 	<url>https://github.com/azam/dynamodb-quartz</url>

@@ -1949,6 +1949,7 @@ public class DynamoDBJobStore implements JobStore {
 				new ExpectedAttributeValue().withComparisonOperator(
 						ComparisonOperator.NE).withValue(
 						new AttributeValue().withBOOL(false)));
+		req.addExpectedEntry(KEY_KEY, new ExpectedAttributeValue(true).withValue(new AttributeValue(formatKey(key))));
 		req.withReturnValues(ReturnValue.UPDATED_OLD);
 		try {
 			LOG.trace("  updating key: " + km.get(KEY_KEY).getS());
